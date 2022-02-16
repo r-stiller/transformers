@@ -56,6 +56,22 @@ def quick_gelu(x):
     return x * torch.sigmoid(1.702 * x)
 
 
+def gelu_10(x):
+    """
+    Clip the range of possible GeLU outputs between [-10, 10].
+    This is especially useful for quantization purpose, as it allows mapping 2 negatives values in the GeLU spectrum.
+    For more information on this trick, please refer to https://arxiv.org/abs/2004.09602
+
+    Gaussian Error Linear Unit. Original Implementation of the gelu activation function in Google Bert repo when
+    initially created. For information: OpenAI GPT's gelu is slightly different (and gives slightly different results):
+    0.5 * x * (1 + torch.tanh(math.sqrt(2 / math.pi) * (x + 0.044715 * torch.pow(x, 3)))) Also see
+    https://arxiv.org/abs/1606.08415
+    :param x:
+    :return:
+    """
+    return torch.clip(gelu(x), -10, 10)
+
+
 def _silu_python(x):
     """
     See Gaussian Error Linear Units (Hendrycks et al., https://arxiv.org/abs/1606.08415) where the SiLU (Sigmoid Linear
@@ -101,6 +117,7 @@ ACT2FN = {
     "gelu_new": gelu_new,
     "gelu_fast": gelu_fast,
     "quick_gelu": quick_gelu,
+    "gelu_10": gelu_10,
     "mish": mish,
     "linear": linear_act,
     "sigmoid": torch.sigmoid,
